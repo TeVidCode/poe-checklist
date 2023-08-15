@@ -20,7 +20,7 @@ The todos are plain text files which are easy to edit and customize.
 6. Craft your own todo list by clicking the "+" button. An example list is provided to guide you. Click "Edit Todos" to view the list and "Set Active" to display the todos in the browser.
 
 
-![](./docs/quick_start.png)
+![](./docs/quick_start_1.png)
 
 ## Installation
 
