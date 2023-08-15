@@ -1,0 +1,250 @@
+<head>
+<link rel="stylesheet" href="switch-styles.css">
+<style>
+
+#todos {
+	font-size: 30px;
+	overflow-y: scroll;
+	height: 85vh	
+}
+
+#content {
+font-size: 20px;
+}
+
+.dark {
+  background-color: rgb(18, 18, 18);
+  color: white;
+}
+.dark a {
+	color: orange
+}
+li{
+  list-style-position: outside;
+  margin-left: 1em;
+ }
+
+.container {
+	display: flex;
+	flex-direction: row;
+	gap: 0.5em;
+	align-items: flex-start;
+}
+
+input {
+	height: 30px;
+	width: 30px;
+	flex-shrink: 0;
+	pointer-events: none;
+}
+
+.DONE {
+	text-decoration: line-through;
+	opacity: 0.5;
+}
+
+.CURRENT.optional {
+	opacity: 0.7 !important;
+	color: orange;
+}
+
+.UNDONE {
+	opacity: 0.5;
+}
+
+.CURRENT {
+	font-weight: bold;
+	font-size: 35px;
+}
+
+.card {
+	flex: 1 1 0px;
+	box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+	transition: 0.3s;
+	padding: 20px;
+	gap: 20px;
+	display: flex;
+	flex-direction: column;
+}
+
+.dark .card {
+	box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 1px -1px, rgba(0, 0, 0, 0.14) 0px 1px 1px 0px, rgba(0, 0, 0, 0.12) 0px 1px 3px 0px;
+	background-image: linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05))
+}
+</style>
+</head>
+
+<body id="root">
+	<div style="display: flex; align-items: center">
+			<h1 id="section" style="flex-grow: 1"></h1> 
+		<span>
+		
+		<label class="switch" style="float: right">
+		<input id="dark-mode" type="checkbox" onclick="onSliderChanged()" /> 
+		<span class="slider round"></span> </label>
+		<span style="font-size: 30px">dark mode: &nbsp;</span>
+	</div>
+
+	<div style="display: flex; gap: 1em">
+		<div id="todos" class="card"></div>
+		<div id="content" class="card"></div>
+	</div>
+
+	</div>
+
+	<script>
+
+		var todo = [];
+
+		function onSliderChanged(){
+			var input = document.getElementById("dark-mode");
+			var root = document.getElementById("root");
+		
+			if(input.checked)
+				root.classList.add("dark");
+			else
+				root.classList.remove("dark")
+			
+		}
+
+
+		function isElementOutsideView(element) {
+			const elementRect = element.getBoundingClientRect(); // Get element's position and dimensions
+			const viewportWidth = window.innerWidth || document.documentElement.clientWidth; // Get viewport width
+			const viewportHeight = window.innerHeight || document.documentElement.clientHeight; // Get viewport height
+
+			// Adjust the viewport dimensions based on the scroll position
+
+
+			// Compare element's position with adjusted viewport dimensions
+			if (
+				elementRect.top <= viewportHeight*0.1 ||
+				elementRect.bottom >= (viewportHeight *0.9)
+			) {
+				return true; // Element is fully outside the view
+			} else {
+				return false; // Element is at least partially inside the view
+			}
+		}
+
+
+		function renderTodo(todo) {
+
+			var container = document.createElement("div");
+
+
+			var classname = "container " + todo.state;
+			if (todo.optional == true)
+				classname += " optional";
+
+			container.className = classname;
+
+			var checkbox = document.createElement("input");
+			checkbox.type = "checkbox";
+			checkbox.checked = todo.state === "DONE";
+			container.appendChild(checkbox);
+
+			var text = document.createElement("div")
+			text.innerHTML = todo.caption
+			container.appendChild(text);
+
+			return container;
+		}
+
+
+		async function update() {
+			let response = await fetch("http://localhost:8080/current_section", {cache: "no-store"})
+			if (!response.ok)
+				throw new Error("Can't find current section");
+
+			var currentSection = await response.text();
+
+			response = await fetch("http://localhost:8080/todos", {cache: "no-store"})
+			if (!response.ok)
+				throw new Error("Can't find undone logs");
+
+			var todos = await response.json();
+
+
+
+			let section = document.getElementById("section");
+			section.innerHTML = currentSection;
+
+			let todosElem = document.getElementById("todos");
+
+			while (todosElem.firstChild) {
+				todosElem.removeChild(todosElem.firstChild);
+			}
+
+			var current = null;
+			var currentTodo = null;
+			for (todo of todos) {
+				let container = renderTodo(todo);
+				todosElem.appendChild(container);
+
+				if (todo.state == "CURRENT") {
+					current = container;
+					currentTodo = todo;
+				}
+			}
+
+			let contentElem = document.getElementById("content")
+			while (contentElem.firstChild) {
+				contentElem.removeChild(contentElem.firstChild);
+			}
+
+			if (currentTodo != null) {
+				// scroll to corrent if not displayed
+				if (isElementOutsideView(current) == true) {
+					current.scrollIntoView({
+						behavior: 'smooth', // You can use 'auto' for instant scrolling
+						block: 'center',
+					});
+				}
+
+				for (let content of currentTodo.contents) {
+					if (content.type == "TEXT") {
+						let text = document.createElement("div")
+						text.className = "text-content";
+						text.innerHTML = content.text;
+						contentElem.append(text);
+					}
+				}
+
+			}
+		}
+
+		connectWebSocket();
+
+		function connectWebSocket() {
+			var ws = new WebSocket("ws://localhost:8080/ws");
+
+			ws.onopen = () => {
+				console.log("WebSocket connected");
+				update();
+			};
+
+			ws.onmessage = (event) => {
+				update();
+			};
+
+			ws.onclose = (event) => {
+				console.log("WebSocket closed with code: " + event.code);
+
+				// Reconnect after a delay
+				setTimeout(() => {
+					console.log("Reconnecting...");
+					connectWebSocket();
+				}, 1000); // You can adjust the delay (in milliseconds) as needed
+			};
+
+			ws.onerror = (error) => {
+				console.error("WebSocket error: " + error);
+			};
+		}
+
+	onSliderChanged();
+	update();
+
+	</script>
+</body>

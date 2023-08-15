@@ -1,0 +1,39 @@
+// Hey this is a quick example file for creating your own Todo checklists
+// Press the open Button in the control panel to see the demo of this file
+// Comments like line 1 begin with '//'
+
+// Sections begin with a '#'.  
+# Section 1 (e.g. Acts)
+
+
+// Todos begin with an '-' followed by a short title.
+- This is an example Todo
+
+	// Any text after the Todo will become the content of the Todo.
+	// Additional information can be placed here. The content section ends when annother Todo.
+	This is the content of the todo. 
+	The content will stop when the next section/todo starts
+
+
+// Todos starting with a '*' will be marked as optional
+// The text "(Optional) will be added automatically and they will be displayed in italic 
+* This is an optional todo
+
+- Todo with image
+	This is an image:
+	// images must be in the same folder as the todo.txt file.
+	// they can by added with this notation.
+	// just replace the "example_img.png" your image name
+	<img src="/img/example_img.png" width="200px" height="100px" />
+	
+- Todo with special text
+	// you can use normal html tags to modify the text 
+	// here are some examples	
+	<b>This is a bold text</b>
+	<i>This is an italic text</b>
+	<span style="color:blue;">This is a blue text</span> 
+
+- Special <span style="background: black; color: white">text</span> can be used in todos too
+
+
+

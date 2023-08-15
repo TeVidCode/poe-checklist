@@ -1,0 +1,7 @@
+workspace
+dev/.settings
+dev/.classpath
+dev/.metadata
+dev/.project
+dev/target
+dev/RemoteSystemsTempFiles
