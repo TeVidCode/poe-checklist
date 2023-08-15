@@ -63,7 +63,7 @@ public class UiProfileContent extends JPanel implements ProfileChangeListener {
 
 		addLabel(gbc, actions, 1, "Sets the profile to active. They will show up in the web view.");
 		addLabel(gbc, actions, 2,
-				"Removes the todo list by removing all progress. Also reloads todos when the todo list changed");
+				"Removes all progress from your todo list. Also reloads the todos from the underlying textfile. Must be done after the textfile was edited");
 		addLabel(gbc, actions, 3, "Edit the todo list");
 
 		this.setVisible(false);
