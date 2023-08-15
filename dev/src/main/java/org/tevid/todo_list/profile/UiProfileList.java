@@ -80,9 +80,7 @@ public class UiProfileList extends JPanel implements ProfileChangeListener {
 					selectedProfile = profile;
 				}
 			}
-		}
-		if (listModel.isEmpty() == false && selectedProfile == null)
-			selectedProfile = listModel.get(0);
+		}	
 
 		profileList.setSelectedValue(selectedProfile, true);
 
@@ -101,9 +99,10 @@ public class UiProfileList extends JPanel implements ProfileChangeListener {
 		if (ret == JOptionPane.YES_OPTION) {
 			try {
 				profileService.deleteProfile(profile);
+				loggingService.logInfo("Deleted profile " + profile.getName());
 				refresh(null);
 			} catch (IOException e) {
-				loggingService.logWarning("Error deleting profile: " + profile.getName());
+				loggingService.logError("Error deleting profile: " + profile.getName());
 			}
 		}
 	}
@@ -114,11 +113,24 @@ public class UiProfileList extends JPanel implements ProfileChangeListener {
 			listModel.addAll(profileService.getProfiles());
 			profileList.setModel(listModel);
 
+			boolean setSelected = false;
 			if (selectedName != null) {
+				
 				for (int i = 0; i < profileList.getModel().getSize(); i++) {
-					if (profileList.getModel().getElementAt(i).getName().equals(selectedName)) {
+					Profile profile = profileList.getModel().getElementAt(i);
+					if (profile.getName().equals(selectedName)) {
 						profileList.setSelectedIndex(i);
+						for (ProfileChangeListener listener : listeners) {						
+							listener.onProfileSelected(profile);
+						}
+						setSelected =true;
+						break;
 					}
+				}
+			} 
+			if(setSelected == false){
+				for (ProfileChangeListener listener : listeners) {
+					listener.onProfileSelected(null);
 				}
 			}
 		});

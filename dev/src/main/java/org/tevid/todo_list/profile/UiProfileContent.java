@@ -74,6 +74,7 @@ public class UiProfileContent extends JPanel implements ProfileChangeListener {
 					progressService.load(profile);
 					this.setVisible(true);
 					this.profile = profile;
+					loggingService.logInfo("Loaded last active profile " + profile.getName());
 				}
 			}
 		}
@@ -115,6 +116,7 @@ public class UiProfileContent extends JPanel implements ProfileChangeListener {
 				JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 		if (ret == JOptionPane.YES_OPTION) {
 			progressService.reset(profile);
+			loggingService.logInfo("Reset progress of profile " + profile.getName());
 		}
 	}
 
@@ -123,17 +125,20 @@ public class UiProfileContent extends JPanel implements ProfileChangeListener {
 			return;
 		configService.setActiveProfile(profile.getName());
 		progressService.load(profile);
+		for (ProfileChangeListener listener : listeners)
+			listener.onProfileSetActive(profile);
+		loggingService.logInfo("Set profile " + profile.getName() + " to active");
 	}
 
 	@Override
 	public void onProfileSelected(Profile profile) {
-		this.profile = profile;
-		this.setVisible(true);
-
-		for (ProfileChangeListener listener : listeners) {
-			listener.onProfileSetActive(profile);
+		if (profile == null) {
+			this.setVisible(false);
+			this.profile = null;
+		} else {
+			this.profile = profile;
+			this.setVisible(true);
 		}
-
 	}
 
 	@Override

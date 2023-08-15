@@ -9,6 +9,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import org.tevid.todo_list.log.LoggingService;
 import org.tevid.todo_list.utils.ConfigService;
 
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
@@ -17,6 +18,7 @@ public class UiShortcutPanel extends JPanel{
 	
 	private static final long serialVersionUID = 1L;
 	private ConfigService configService = ConfigService.getInstance();
+	private LoggingService loggingService = LoggingService.getInstance();
 
 	public UiShortcutPanel() {
 		
@@ -28,6 +30,7 @@ public class UiShortcutPanel extends JPanel{
 			int keyCode = getKeyDialog(configService.getNextkey());
 			configService.setNextKey(keyCode);
 			nextKey.setText(NativeKeyEvent.getKeyText(keyCode));
+			loggingService.logInfo("Set next key: " + NativeKeyEvent.getKeyText(keyCode));
 		});
 		this.add(nextKey);
 		this.add(Box.createRigidArea(new Dimension(10, 0)));
@@ -38,6 +41,7 @@ public class UiShortcutPanel extends JPanel{
 			int keyCode = getKeyDialog(configService.getNextkey());			
 			configService.setPreviousKey(keyCode);
 			previousKey.setText(NativeKeyEvent.getKeyText(keyCode));
+			loggingService.logInfo("Set previous key: " + NativeKeyEvent.getKeyText(keyCode));
 		});
 		this.add(previousKey);
 	}

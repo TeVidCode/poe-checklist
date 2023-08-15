@@ -2,6 +2,7 @@ package org.tevid.todo_list.log;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.text.DefaultCaret;
 
 import lombok.Getter;
 import lombok.extern.java.Log;
@@ -16,6 +17,8 @@ public class UiLoggingTextArea extends JScrollPane implements LoggingService.Log
 	public UiLoggingTextArea() {
 		setViewportView(textArea);
 		textArea.setEditable(false);
+		DefaultCaret caret = (DefaultCaret)textArea.getCaret();
+		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 		LoggingService.getInstance().addLogChangeListener(this);
 	}
 

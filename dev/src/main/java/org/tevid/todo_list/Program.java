@@ -1,18 +1,20 @@
 package org.tevid.todo_list;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.logging.LogManager;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.springframework.boot.SpringApplication;
 import org.tevid.todo_list.key_listener.GlobalKeyListener;
 import org.tevid.todo_list.log.UiLoggingTextArea;
 import org.tevid.todo_list.profile.ProfileService;
 import org.tevid.todo_list.profile.UiProfileContent;
 import org.tevid.todo_list.profile.UiProfileList;
 import org.tevid.todo_list.utils.PathService;
-import org.tevid.todo_list.web.PoeSpringApplication;
 import org.tevid.todo_list.web.UiWebPanel;
 
 import com.beust.jcommander.JCommander;
@@ -22,8 +24,10 @@ import com.github.kwhat.jnativehook.NativeHookException;
 
 
 public class Program {
+	
 
-	public static void main(String[] rawArgs) {
+	public static void main(String[] rawArgs) throws SecurityException, IOException {
+		
 		
 		ProgramArgs args= new ProgramArgs();
 		JCommander commander = JCommander.newBuilder() //
@@ -31,15 +35,16 @@ public class Program {
 				.build();		
 		commander.parse(rawArgs);
 		
-		PathService.getInstance().setRootDir(args.getRootDir());	
+		PathService.getInstance().setRootDir(args.getRootDir());
 		
+		Path logConfigFile = PathService.getInstance().getRootDir().resolve("logging.properties");
+	
+		LogManager.getLogManager().readConfiguration(new FileInputStream(logConfigFile.toFile()));
 
 		FlatLightLaf.setup();
 		
 		JFrame jFrame = new JFrame();
-		jFrame.setSize(800, 600);
-
-		
+		jFrame.setSize(800, 600);		
 		
 		JPanel container = new JPanel();
 		container.setLayout(new BorderLayout());

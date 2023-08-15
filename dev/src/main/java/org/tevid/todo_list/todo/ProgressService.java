@@ -180,6 +180,7 @@ public class ProgressService {
 
 		if (progressFile.toFile().exists() == false) {
 			loadFromTodoFile(profile);
+			notifyListeners();
 			return;
 		}
 

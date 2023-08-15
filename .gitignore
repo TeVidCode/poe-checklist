@@ -5,3 +5,4 @@ dev/.metadata
 dev/.project
 dev/target
 dev/RemoteSystemsTempFiles
+dev/logs
