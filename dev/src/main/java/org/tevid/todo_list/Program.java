@@ -1,6 +1,8 @@
 package org.tevid.todo_list;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -10,6 +12,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import org.tevid.todo_list.key_listener.GlobalKeyListener;
+import org.tevid.todo_list.log.LoggingService;
 import org.tevid.todo_list.log.UiLoggingTextArea;
 import org.tevid.todo_list.profile.ProfileService;
 import org.tevid.todo_list.profile.UiProfileContent;
@@ -22,7 +25,9 @@ import com.formdev.flatlaf.FlatLightLaf;
 import com.github.kwhat.jnativehook.GlobalScreen;
 import com.github.kwhat.jnativehook.NativeHookException;
 
+import lombok.extern.java.Log;
 
+@Log
 public class Program {
 	
 
@@ -75,13 +80,21 @@ public class Program {
 		try {
 			GlobalScreen.registerNativeHook();
 		} catch (NativeHookException ex) {
-			System.err.println("There was a problem registering the native hook.");
-			System.err.println(ex.getMessage());
+			LoggingService.getInstance().logError("Couldn't regiter native hook. Shortcuts won't work");
+			log.severe("There was a problem registering the native hook." + ex.toString());
 
-			System.exit(1);
 		}
 
-		GlobalScreen.addNativeKeyListener(new GlobalKeyListener());
+		GlobalKeyListener globalKeyListener = new GlobalKeyListener();
+		GlobalScreen.addNativeKeyListener(globalKeyListener);
+		jFrame.addWindowListener(new WindowAdapter() {
+			
+			@Override
+			public void windowClosing(WindowEvent e) {				
+				super.windowClosing(e);
+				GlobalScreen.removeNativeKeyListener(globalKeyListener);
+			}
+		});
 		
 		
 		ProfileService.getInstance();

@@ -38,7 +38,7 @@ public class UiShortcutPanel extends JPanel{
 		this.add(new JLabel("previous: "));		
 		JButton previousKey = new JButton(NativeKeyEvent.getKeyText(configService.getPreviousKey()));
 		previousKey.addActionListener(e -> {
-			int keyCode = getKeyDialog(configService.getNextkey());			
+			int keyCode = getKeyDialog(configService.getPreviousKey());			
 			configService.setPreviousKey(keyCode);
 			previousKey.setText(NativeKeyEvent.getKeyText(keyCode));
 			loggingService.logInfo("Set previous key: " + NativeKeyEvent.getKeyText(keyCode));
